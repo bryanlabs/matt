@@ -1,4 +1,4 @@
-package matt
+package main
 
 import (
 	"io/ioutil"
@@ -14,7 +14,7 @@ import (
 // Loop over all profiles and terraform them.
 func main() {
 	for _, profile := range auth.GetProfiles() {
-		err := goMATT(profile, os.Args[1])
+		err := matt(profile, os.Args[1])
 		if err != nil {
 			log.Printf("### ERROR terraforming %v , See logs for details.\n", profile.Name)
 			continue
@@ -23,18 +23,18 @@ func main() {
 }
 
 // goTerraform will used a named profile to apply a terraform state.
-func goMATT(p profile, statepath string) error {
-	log.Printf("Terraforming %v with %v\n", p.name, statepath)
+func matt(p auth.AWS_Named_Profile, statepath string) error {
+	log.Printf("Terraforming %v with %v\n", p.Name, statepath)
 
 	// get the account number from arn.
-	arnslice := strings.Split(p.arn, ":")
+	arnslice := strings.Split(p.Arn, ":")
 	accountnum := arnslice[4]
 
 	//Update account_id for provider and tfvars.
 	providerpath := statepath + "/provider.tf"
-	account.UpdateAccountID(providerpath, account)
-	tfvarspath := "vars.auto.tfvars"
-	account.UpdateAccountID(tfvarspath, account)
+	account.UpdateAccountID(providerpath, accountnum)
+	tfvarspath := statepath + "vars.auto.tfvars"
+	account.UpdateAccountID(tfvarspath, accountnum)
 	account.UpdateAllAccounts()
 
 	// Initialize the new state file
