@@ -6,15 +6,17 @@ import (
 	"os"
 	"strings"
 
-	"github.com/bryanlabs/matt/auth"
+	"github.com/bryanlabs/matt/utils/account"
+	"github.com/bryanlabs/matt/utils/auth"
+	"github.com/bryanlabs/matt/utils/terraform"
 )
 
 // Loop over all profiles and terraform them.
 func main() {
-	for _, profile := range auth.getProfiles() {
-		err := MATT(profile, os.Args[1])
+	for _, profile := range auth.GetProfiles() {
+		err := goMATT(profile, os.Args[1])
 		if err != nil {
-			log.Printf("### ERROR terraforming %v , See logs for details.\n", profile.name)
+			log.Printf("### ERROR terraforming %v , See logs for details.\n", profile.Name)
 			continue
 		}
 	}
@@ -26,31 +28,31 @@ func goMATT(p profile, statepath string) error {
 
 	// get the account number from arn.
 	arnslice := strings.Split(p.arn, ":")
-	account := arnslice[4]
+	accountnum := arnslice[4]
 
 	//Update account_id for provider and tfvars.
 	providerpath := statepath + "/provider.tf"
-	updateAccountID(providerpath, account)
+	account.UpdateAccountID(providerpath, account)
 	tfvarspath := "vars.auto.tfvars"
-	updateAccountID(tfvarspath, account)
-	updateAllAccounts()
+	account.UpdateAccountID(tfvarspath, account)
+	account.UpdateAllAccounts()
 
 	// Initialize the new state file
-	err := tfInit(statepath)
+	err := terraform.Init(statepath)
 
 	// Plan the change.
 	if err == nil {
-		err = tfCreatePlan(account, statepath)
+		err = terraform.Create(accountnum, statepath)
 	}
 
 	if err == nil {
 		// Plan the change.
-		err = tfApplyPlan(account, statepath)
+		err = terraform.Apply(accountnum, statepath)
 	}
 	if err != nil {
-		_ = ioutil.WriteFile("logs/errors/"+account+".error.log", []byte(err.Error()), 0)
+		_ = ioutil.WriteFile("logs/errors/"+accountnum+".error.log", []byte(err.Error()), 0)
 		return err
 	}
-	log.Printf("Terraforming %v Complete\n", p.name)
+	log.Printf("Terraforming %v Complete\n", p.Name)
 	return err
 }

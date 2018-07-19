@@ -1,7 +1,15 @@
 package terraform
 
+import (
+	"io/ioutil"
+	"log"
+
+	ps "github.com/bhendo/go-powershell"
+	"github.com/bhendo/go-powershell/backend"
+)
+
 // tfInit will initialize the new state.
-func tfInit(statepath string) error {
+func Init(statepath string) error {
 	back := &backend.Local{}
 	shell, err := ps.New(back)
 
@@ -14,7 +22,7 @@ func tfInit(statepath string) error {
 }
 
 // tfCreatePlan will create a terraform plan.
-func tfCreatePlan(account string, statepath string) error {
+func Create(account string, statepath string) error {
 	back := &backend.Local{}
 	shell, err := ps.New(back)
 	defer shell.Exit()
@@ -29,7 +37,7 @@ func tfCreatePlan(account string, statepath string) error {
 }
 
 // tfApplyPlan will create a terraform plan.
-func tfApplyPlan(account string, statepath string) error {
+func Apply(account string, statepath string) error {
 	back := &backend.Local{}
 	shell, err := ps.New(back)
 	defer shell.Exit()
@@ -44,4 +52,11 @@ func tfApplyPlan(account string, statepath string) error {
 
 	return err
 
+}
+
+func check(e error) {
+	if e != nil {
+		log.Printf("Error: %v\n", e)
+		return
+	}
 }

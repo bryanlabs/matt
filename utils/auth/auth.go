@@ -12,12 +12,12 @@ import (
 
 // The important fields from the AWS Named Profile.
 type AWS_Named_Profile struct {
-	name string
-	arn  string
+	Name string
+	Arn  string
 }
 
 // getProfiles will return a list of valid/enabled named profiles found in a users aws profile.
-func getProfiles() []AWS_Named_Profile {
+func GetProfiles() []AWS_Named_Profile {
 	xp := make([]AWS_Named_Profile, 0)
 
 	// Get the userprofile from powershell.
@@ -41,8 +41,8 @@ func getProfiles() []AWS_Named_Profile {
 	for _, section := range cfg.Sections() {
 		if section.HasKey("role_arn") {
 			var p AWS_Named_Profile
-			p.name = section.Name()
-			p.arn = section.Key("role_arn").String()
+			p.Name = section.Name()
+			p.Arn = section.Key("role_arn").String()
 			xp = append(xp, p)
 		}
 	}

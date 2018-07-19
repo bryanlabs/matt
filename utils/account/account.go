@@ -18,7 +18,7 @@ type AWS_dbaccountinfo struct {
 }
 
 // updateAccountID will modify provider.tf and dynamic.tfvars to allow multi account terraforming.
-func updateAccountID(file string, account string) {
+func UpdateAccountID(file string, account string) {
 	data, err := ioutil.ReadFile(file)
 	check(err)
 	lines := strings.Split(string(data), "\n")
@@ -33,12 +33,12 @@ func updateAccountID(file string, account string) {
 	err = ioutil.WriteFile(file, []byte(output), 0)
 }
 
-func updateAllAccounts() {
+func UpdateAllAccounts() {
 	// Create DynamoDB client
 
 	db := dynamo.New(session.New(), &aws.Config{Region: aws.String("us-east-1")})
 	table := db.Table("AccountSecurityGroups")
-	var results []dbaccountinfo
+	var results []AWS_dbaccountinfo
 
 	err := table.Scan().All(&results)
 
