@@ -33,7 +33,7 @@ func UpdateAccountID(file string, account string) {
 	err = ioutil.WriteFile(file, []byte(output), 0)
 }
 
-func UpdateAllAccounts() {
+func GetEvoAccounts() (evoaccounts []string) {
 	// Create DynamoDB client
 
 	db := dynamo.New(session.New(), &aws.Config{Region: aws.String("us-east-1")})
@@ -46,15 +46,18 @@ func UpdateAllAccounts() {
 		log.Fatal("Could not get session: ", err)
 	}
 
-	var allAccounts []string
 	for _, r := range results {
 		if r.Deleted_at == "" && r.IsDevelopment != true {
-			allAccounts = append(allAccounts, r.AccountID)
+			evoaccounts = append(evoaccounts, r.AccountID)
 		}
 	}
+	return
+}
+
+func UpdateAllAccounts(allAccounts []string) {
 
 	// Update the tfvars file.
-	file := "allaccounts.auto.tfvars"
+	file := "vars.auto.tfvars"
 	var accountARNs []string
 	var accountNumbers []string
 	for _, account := range allAccounts {
