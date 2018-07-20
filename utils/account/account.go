@@ -17,14 +17,20 @@ type AWS_dbaccountinfo struct {
 	Deleted_at    string
 }
 
+func GetModuleName(path string) (modulename string) {
+	slice := strings.Split(path, "\\")
+	li := slice[len(slice)-2]
+	return li
+}
+
 // updateAccountID will modify provider.tf and dynamic.tfvars to allow multi account terraforming.
-func UpdateAccountID(file string, account string) {
+func UpdateAccountID(file string, account string, module string) {
 	data, err := ioutil.ReadFile(file)
 	check(err)
 	lines := strings.Split(string(data), "\n")
 	for i, line := range lines {
 		if strings.Contains(line, "tfstate") {
-			lines[i] = "    key    = \"" + account + ".tfstate\""
+			lines[i] = "    key    = \"" + account + "-" + module + ".tfstate\""
 		} else if strings.HasPrefix(line, "account_id =") {
 			lines[i] = "account_id = \"" + account + "\""
 		}

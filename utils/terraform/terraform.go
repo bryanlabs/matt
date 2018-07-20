@@ -9,7 +9,7 @@ import (
 )
 
 // tfInit will initialize the new state.
-func Init(statepath string) error {
+func Init(statepath string) {
 	back := &backend.Local{}
 	shell, err := ps.New(back)
 
@@ -18,11 +18,14 @@ func Init(statepath string) error {
 	defer shell.Exit()
 
 	_, _, err = shell.Execute("tf init -reconfigure " + statepath)
-	return err
+	if err != nil {
+		log.Printf(err.Error())
+	}
+
 }
 
 // tfCreatePlan will create a terraform plan.
-func Create(account string, statepath string) error {
+func Create(account string, statepath string) {
 	back := &backend.Local{}
 	shell, err := ps.New(back)
 	defer shell.Exit()
@@ -31,13 +34,13 @@ func Create(account string, statepath string) error {
 
 	if err == nil {
 		log.Printf("Created Plan: %v\n", account+".tfplan")
+	} else {
+		log.Printf("Error: %v\n", err)
 	}
-
-	return err
 }
 
 // tfApplyPlan will apply a terraform plan.
-func Apply(account string, statepath string) error {
+func Apply(account string, statepath string) {
 	back := &backend.Local{}
 	shell, err := ps.New(back)
 	defer shell.Exit()
@@ -48,9 +51,29 @@ func Apply(account string, statepath string) error {
 
 	if err == nil {
 		log.Printf("Applied Plan: %v\n", account+".tfplan")
+	} else {
+		_ = ioutil.WriteFile("matt/"+account+".error.log", []byte(err.Error()), 0)
+		log.Printf("### ERROR terraforming %v , See logs for details.\n", account)
 	}
 
-	return err
+}
+
+// Destroy will Destroy a terraform plan.
+func Destroy(account string, statepath string) {
+	back := &backend.Local{}
+	shell, err := ps.New(back)
+	defer shell.Exit()
+	stdout, stderr, err := shell.Execute("tf destroy -auto-approve " + statepath)
+
+	err = ioutil.WriteFile("matt/"+account+".stdout.log", []byte(stdout), 0)
+	err = ioutil.WriteFile("matt/"+account+".stderr.log", []byte(stderr), 0)
+
+	if err == nil {
+		log.Printf("Deleted: %v\n", account)
+	} else {
+		_ = ioutil.WriteFile("matt/"+account+".error.log", []byte(err.Error()), 0)
+		log.Printf("### ERROR terraforming %v , See logs for details.\n", account)
+	}
 
 }
 
