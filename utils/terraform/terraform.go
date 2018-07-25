@@ -30,7 +30,7 @@ func Create(account string, statepath string) {
 	shell, err := ps.New(back)
 	defer shell.Exit()
 
-	_, _, err = shell.Execute("tf plan -out=\"matt/" + account + ".tfplan\" " + statepath)
+	_, _, err = shell.Execute("tf plan -no-color -out=\"matt/" + account + ".tfplan\" " + statepath)
 
 	if err == nil {
 		log.Printf("Created Plan: %v\n", account+".tfplan")
