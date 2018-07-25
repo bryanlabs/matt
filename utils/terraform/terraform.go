@@ -44,7 +44,7 @@ func Apply(account string, statepath string) {
 	back := &backend.Local{}
 	shell, err := ps.New(back)
 	defer shell.Exit()
-	stdout, stderr, err := shell.Execute("tf apply matt/" + account + ".tfplan")
+	stdout, stderr, err := shell.Execute("tf apply -no-color matt/" + account + ".tfplan")
 
 	err = ioutil.WriteFile("matt/"+account+".stdout.log", []byte(stdout), 0)
 	err = ioutil.WriteFile("matt/"+account+".stderr.log", []byte(stderr), 0)
