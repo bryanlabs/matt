@@ -63,7 +63,7 @@ func Destroy(account string, statepath string) {
 	back := &backend.Local{}
 	shell, err := ps.New(back)
 	defer shell.Exit()
-	stdout, stderr, err := shell.Execute("tf destroy -auto-approve " + statepath)
+	stdout, stderr, err := shell.Execute("tf destroy -no-color -auto-approve " + statepath)
 
 	err = ioutil.WriteFile("matt/"+account+".stdout.log", []byte(stdout), 0)
 	err = ioutil.WriteFile("matt/"+account+".stderr.log", []byte(stderr), 0)
