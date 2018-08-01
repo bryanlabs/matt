@@ -52,8 +52,8 @@
     "service/dynamodb/dynamodbiface",
     "service/sts"
   ]
-  revision = "8cf662a972fa7fba8f2c1ec57648cf840e2bb401"
-  version = "v1.14.30"
+  revision = "8475c414b1bd58b8cc214873a8854e3a621e67d7"
+  version = "v1.15.0"
 
 [[projects]]
   branch = "master"
@@ -95,13 +95,13 @@
   branch = "master"
   name = "github.com/juju/errors"
   packages = ["."]
-  revision = "c7d06af17c68cd34c835053720b21f6549d9b0ee"
+  revision = "812b06ada1776ad4dd95d575e18ffffe3a9ac34a"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
   packages = ["context"]
-  revision = "a680a1efc54dd51c040b3b5ce4939ea3cf2ea0d1"
+  revision = "3673e40ba22529d22c3fd7c93e97b0ce50fa7bdd"
 
 [[projects]]
   name = "gopkg.in/alecthomas/kingpin.v2"
@@ -109,9 +109,15 @@
   revision = "947dcec5ba9c011838740e680966fd7087a71d0d"
   version = "v2.2.6"
 
+[[projects]]
+  name = "gopkg.in/ini.v1"
+  packages = ["."]
+  revision = "358ee7663966325963d4e8b2e1fbd570c5195153"
+  version = "v1.38.1"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "7eb86e753e0f9836b88fa7db630a6e08c95c5815641314f2c319536c169f5acf"
+  inputs-digest = "c8ce38aaa30d118c393e58d5b5dd635b80c2a15562c93ef620b134d326f566c5"
   solver-name = "gps-cdcl"
   solver-version = 1

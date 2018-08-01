@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -9,10 +10,12 @@ import (
 	"github.com/bryanlabs/matt/utils/account"
 	"github.com/bryanlabs/matt/utils/terraform"
 	"gopkg.in/alecthomas/kingpin.v2"
+	"gopkg.in/ini.v1"
 )
 
 var (
 	awsAccountSource = kingpin.Flag("aws-account-source", "Account Source.").Required().Short('a').String()
+	mattConf         = kingpin.Flag("conf", "Conf File.").Required().Short('f').String()
 	tfCmd            = kingpin.Flag("tf-cmd", "Terraform Command.").Short('c').String()
 	tfPath           = kingpin.Arg("tf-path", "Path to terraform modules.").Required().String()
 	wg               sync.WaitGroup
@@ -20,46 +23,64 @@ var (
 
 // Loop over all profiles and terraform them.
 func main() {
+
 	kingpin.Version("0.0.1")
 	kingpin.Parse()
 	slice := strings.Split(*awsAccountSource, ",")
 	wg.Add(len(slice))
-	for _, account := range slice {
-		matt(account, *tfCmd, *tfPath)
+	os.MkdirAll("matt", os.ModePerm)
+	for _, i := range slice {
+		matt(i, *tfCmd, *tfPath, *mattConf)
 	}
 	wg.Wait()
+
 }
 
 // goTerraform will used a named profile to apply a terraform state.
-func matt(accountnum string, tfcmd string, statepath string) {
+func matt(accountnum string, tfcmd string, statepath string, conf string) {
+	cfg, err := ini.Load(conf)
+	if err != nil {
+		fmt.Printf("Fail to read file: %v", err)
+		os.Exit(1)
+	}
+	var slice []string
+	keys := cfg.Section("matt").KeyStrings()
+	for _, key := range keys {
+		val := cfg.Section("matt").Key(key).String()
+		slice = append(slice, key+"="+val+"")
+	}
+
 	log.Printf("Terraforming %v with %v\n", accountnum, statepath)
-	modulename := account.GetModuleName(statepath)
+
 	//Update account_id for provider and tfvars.
-	providerpath := statepath + "/provider.tf"
-	account.UpdateAccountID(providerpath, accountnum, modulename)
-	tfvarspath := "vars.auto.tfvars"
-	account.UpdateAccountID(tfvarspath, accountnum, modulename)
+	modulename := account.GetModuleName(statepath)
 	evoaccounts := account.GetEvoAccounts()
-	account.UpdateAllAccounts(evoaccounts)
-	os.MkdirAll("matt", os.ModePerm)
+	info := account.GetAccountInfo(evoaccounts)
+	arnstr := "all_accountarns=" + info.Arns
+	accountsstr := "all_accountnumbers=" + info.Accounts
+	accountstr := "account_id=" + accountnum
+
+	slice = append(slice, arnstr, accountstr, accountsstr)
+	options := "-var '" + strings.Join(slice, "' -var '") + "'"
+
 	if len(tfcmd) > 1 {
 		switch cmd := tfcmd; cmd {
 		case "create":
-			terraform.Init(statepath)
-			terraform.Create(accountnum, statepath)
+			terraform.Init(statepath, options, accountnum, modulename)
+			terraform.Create(accountnum, statepath, options, modulename)
 		case "apply":
-			terraform.Init(statepath)
-			terraform.Apply(accountnum, statepath)
+			terraform.Init(statepath, options, accountnum, modulename)
+			terraform.Apply(accountnum, statepath, options, modulename)
 		case "destroy":
-			terraform.Init(statepath)
-			terraform.Destroy(accountnum, statepath)
+			terraform.Init(statepath, options, accountnum, modulename)
+			terraform.Destroy(accountnum, statepath, options, modulename)
 		default:
 			log.Printf("Command: %v not supported\n", tfcmd)
 		}
 	} else {
-		terraform.Init(statepath)
-		terraform.Create(accountnum, statepath)
-		terraform.Apply(accountnum, statepath)
+		terraform.Init(statepath, options, accountnum, modulename)
+		terraform.Create(accountnum, statepath, options, modulename)
+		terraform.Apply(accountnum, statepath, options, modulename)
 	}
 
 	log.Printf("Terraforming %v Complete\n", accountnum)

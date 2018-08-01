@@ -60,31 +60,25 @@ func GetEvoAccounts() (evoaccounts []string) {
 	return
 }
 
-func UpdateAllAccounts(allAccounts []string) {
+type AccountInfo struct {
+	Arns     string
+	Accounts string
+}
+
+func GetAccountInfo(allAccounts []string) (info AccountInfo) {
 
 	// Update the tfvars file.
-	file := "vars.auto.tfvars"
 	var accountARNs []string
 	var accountNumbers []string
 	for _, account := range allAccounts {
-		//  "arn:aws:iam::117751863401:root",
-		ARN := "\"arn:aws:sts::" + account + ":assumed-role/lambda-ssmhealth/ssmhealth\""
-		accountNumbers = append(accountNumbers, "\""+account+"\"")
+		//Need the tripple quotes for powershell.
+		ARN := "\"\"\"arn:aws:sts::" + account + ":assumed-role/lambda-ssmhealth/ssmhealth\"\"\""
+		accountNumbers = append(accountNumbers, "\"\"\""+account+"\"\"\"")
 		accountARNs = append(accountARNs, ARN)
-		// straccountARNs := strings.Join(accountARNs, ",")
 	}
-	data, err := ioutil.ReadFile(file)
-	check(err)
-	lines := strings.Split(string(data), "\n")
-	for i, line := range lines {
-		if strings.Contains(line, "all_accountarns") {
-			lines[i] = "all_accountarns = [" + strings.Join(accountARNs, ", ") + "]"
-		} else if strings.Contains(line, "all_accountnumbers") {
-			lines[i] = "all_accountnumbers = [" + strings.Join(accountNumbers, ", ") + "]"
-		}
-	}
-	output := strings.Join(lines, "\n")
-	err = ioutil.WriteFile(file, []byte(output), 0)
+	info.Arns = "[" + strings.Join(accountARNs, ", ") + "]"
+	info.Accounts = "[" + strings.Join(accountNumbers, ", ") + "]"
+	return
 }
 
 func check(e error) {
