@@ -69,7 +69,7 @@ func matt(accountnum string, tfcmd string, statepath string, conf string) {
 		switch cmd := tfcmd; cmd {
 		case "create":
 			terraform.Init(statepath, options, accountnum, modulename, bucket)
-			terraform.Create(accountnum, statepath, options, modulename)
+			terraform.Plan(accountnum, statepath, options, modulename)
 		case "apply":
 			terraform.Init(statepath, options, accountnum, modulename, bucket)
 			terraform.Apply(accountnum, statepath, options, modulename)
@@ -81,7 +81,7 @@ func matt(accountnum string, tfcmd string, statepath string, conf string) {
 		}
 	} else {
 		terraform.Init(statepath, options, accountnum, modulename, bucket)
-		terraform.Create(accountnum, statepath, options, modulename)
+		terraform.Plan(accountnum, statepath, options, modulename)
 		terraform.Apply(accountnum, statepath, options, modulename)
 	}
 

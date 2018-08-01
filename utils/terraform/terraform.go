@@ -1,7 +1,6 @@
 package terraform
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -19,9 +18,10 @@ func Init(statepath string, options string, account string, modulename string, b
 
 	defer shell.Exit()
 
-	backend := "-backend-config=\"key=" + account + "-" + modulename + ".tfstate,bucket=" + bucket + "\""
-	cmd := "tf init -reconfigure " + options + " " + backend + " " + statepath
-	fmt.Println("Init: ", cmd)
+	backendKey := "-backend-config=\"key=" + account + "-" + modulename + ".tfstate\""
+	backendBucket := "-backend-config=\"bucket=" + bucket + "\""
+	cmd := "tf init -reconfigure " + options + " " + backendKey + " " + backendBucket + " " + statepath
+	// fmt.Println("Init: ", cmd)
 	_, _, err = shell.Execute(cmd)
 	if err != nil {
 		log.Printf(err.Error())
@@ -30,7 +30,7 @@ func Init(statepath string, options string, account string, modulename string, b
 }
 
 // tfCreatePlan will create a terraform plan.
-func Create(account string, statepath string, options string, modulename string) {
+func Plan(account string, statepath string, options string, modulename string) {
 	os.MkdirAll("matt/plans", os.ModePerm)
 	back := &backend.Local{}
 	shell, err := ps.New(back)
