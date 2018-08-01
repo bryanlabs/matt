@@ -62,23 +62,25 @@ func matt(accountnum string, tfcmd string, statepath string, conf string) {
 
 	slice = append(slice, arnstr, accountstr, accountsstr)
 	options := "-var '" + strings.Join(slice, "' -var '") + "'"
+	domain := strings.ToLower(os.Getenv("userdomain"))
+	bucket := domain + "-terraform-remote-state-storage-s3"
 
 	if len(tfcmd) > 1 {
 		switch cmd := tfcmd; cmd {
 		case "create":
-			terraform.Init(statepath, options, accountnum, modulename)
+			terraform.Init(statepath, options, accountnum, modulename, bucket)
 			terraform.Create(accountnum, statepath, options, modulename)
 		case "apply":
-			terraform.Init(statepath, options, accountnum, modulename)
+			terraform.Init(statepath, options, accountnum, modulename, bucket)
 			terraform.Apply(accountnum, statepath, options, modulename)
 		case "destroy":
-			terraform.Init(statepath, options, accountnum, modulename)
+			terraform.Init(statepath, options, accountnum, modulename, bucket)
 			terraform.Destroy(accountnum, statepath, options, modulename)
 		default:
 			log.Printf("Command: %v not supported\n", tfcmd)
 		}
 	} else {
-		terraform.Init(statepath, options, accountnum, modulename)
+		terraform.Init(statepath, options, accountnum, modulename, bucket)
 		terraform.Create(accountnum, statepath, options, modulename)
 		terraform.Apply(accountnum, statepath, options, modulename)
 	}

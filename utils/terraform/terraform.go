@@ -1,6 +1,7 @@
 package terraform
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -10,7 +11,7 @@ import (
 )
 
 // tfInit will initialize the new state.
-func Init(statepath string, options string, account string, modulename string) {
+func Init(statepath string, options string, account string, modulename string, bucket string) {
 	back := &backend.Local{}
 	shell, err := ps.New(back)
 
@@ -18,9 +19,9 @@ func Init(statepath string, options string, account string, modulename string) {
 
 	defer shell.Exit()
 
-	backend := "-backend-config=\"key=" + account + "-" + modulename + ".tfstate\""
+	backend := "-backend-config=\"key=" + account + "-" + modulename + ".tfstate,bucket=" + bucket + "\""
 	cmd := "tf init -reconfigure " + options + " " + backend + " " + statepath
-	// fmt.Println("Init: ", cmd)
+	fmt.Println("Init: ", cmd)
 	_, _, err = shell.Execute(cmd)
 	if err != nil {
 		log.Printf(err.Error())
