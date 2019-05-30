@@ -3,6 +3,9 @@ Multi-Account Terraform Tool
 
 matt is a terraform wrapper for working with multiple account, currently works with AWS.
 
+## Use terragrunt instead.  
+https://github.com/gruntwork-io/terragrunt
+
 matt.ini defines the static vars to pass as var flags.
 
 <span style="color:red">**DON'T USE THIS:** </span> Very Alpha.
